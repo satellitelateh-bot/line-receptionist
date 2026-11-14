@@ -1,22 +1,23 @@
+import os
 import sqlite3
 from datetime import datetime, date, time, timedelta
 from zoneinfo import ZoneInfo
 
 TZ = ZoneInfo("Asia/Bangkok")
-DB = "bookings.db"
+DB = os.environ.get("DB_PATH", "bookings.db")
 OPEN_HOUR, CLOSE_HOUR = 10, 19
 CLOSED_WEEKDAY = 2
 MAX_DAYS_AHEAD = 14
 CANCEL_HOURS = 3
 
 SERVICES = {
-    "womens_cut": {"name": "ตัดผมหญิง", "minutes": 45, "price": 350, "staff": "Fon"},
-    "mens_cut": {"name": "ตัดผมชาย", "minutes": 30, "price": 250, "staff": "Ake"},
-    "wash_blow_dry": {"name": "สระไดร์", "minutes": 30, "price": 200, "staff": "Mint"},
-    "full_color": {"name": "ทำสีทั้งศีรษะ", "minutes": 120, "price": 1200, "staff": "Fon"},
-    "highlights": {"name": "ไฮไลท์", "minutes": 150, "price": 1800, "staff": "Fon"},
-    "treatment": {"name": "ทรีตเมนต์", "minutes": 45, "price": 600, "staff": "Mint"},
-    "gel_manicure": {"name": "ทำเล็บเจล", "minutes": 60, "price": 450, "staff": "Mint"},
+    "womens_cut": {"name": "ตัดผมหญิง", "minutes": 45, "price": 350, "staff": "พี่ฝน"},
+    "mens_cut": {"name": "ตัดผมชาย", "minutes": 30, "price": 250, "staff": "พี่เอก"},
+    "wash_blow_dry": {"name": "สระไดร์", "minutes": 30, "price": 200, "staff": "น้องมิ้นท์"},
+    "full_color": {"name": "ทำสีทั้งศีรษะ", "minutes": 120, "price": 1200, "staff": "พี่ฝน"},
+    "highlights": {"name": "ไฮไลท์", "minutes": 150, "price": 1800, "staff": "พี่ฝน"},
+    "treatment": {"name": "ทรีตเมนต์", "minutes": 45, "price": 600, "staff": "น้องมิ้นท์"},
+    "gel_manicure": {"name": "ทำเล็บเจล", "minutes": 60, "price": 450, "staff": "น้องมิ้นท์"},
 }
 
 

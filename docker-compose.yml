@@ -6,6 +6,9 @@ services:
     env_file: .env
     environment:
       - OLLAMA_HOST=http://ollama:11434
+      - DB_PATH=/app/data/bookings.db
+    volumes:
+      - booking_data:/app/data
     depends_on:
       - ollama
     networks: [web, internal]
@@ -20,6 +23,7 @@ services:
 
 volumes:
   ollama_data:
+  booking_data:
 
 networks:
   web:

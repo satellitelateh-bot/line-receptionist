@@ -1,0 +1,5 @@
+.venv
+.env
+index.json
+bookings.db
+.git

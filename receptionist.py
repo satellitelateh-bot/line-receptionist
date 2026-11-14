@@ -53,7 +53,7 @@ def system_prompt():
         "Before booking, make sure you know the service, date, time and the customer's name. "
         "After booking, give the booking id. "
         "If the shop facts do not answer a question, say you will check with staff. "
-        "Always reply in the language of the customer's latest message, even though the shop facts are in Thai: English question, English answer. Keep it short and friendly, like a LINE message."
+        "Always reply in the language of the customer's latest message, even though the shop facts are in Thai: English question, English answer. In Thai always end with ค่ะ or คะ, never ครับ. Keep it short and friendly, like a LINE message."
     )
 
 

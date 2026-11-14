@@ -62,3 +62,54 @@ def chat(body: ChatIn, request: Request):
     answer = reply(history)
     SESSIONS[body.session_id[:64]] = trim(history)
     return {"reply": answer}
+
+
+import base64
+import hashlib
+import hmac
+import json
+import os
+import urllib.request
+from starlette.concurrency import run_in_threadpool
+
+LINE_SECRET = os.environ.get("LINE_CHANNEL_SECRET", "")
+LINE_TOKEN = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN", "")
+
+
+def line_send(reply_token, text):
+    data = json.dumps({"replyToken": reply_token,
+                       "messages": [{"type": "text", "text": text[:5000]}]}).encode()
+    req = urllib.request.Request(
+        "https://api.line.me/v2/bot/message/reply", data=data,
+        headers={"Content-Type": "application/json", "Authorization": f"Bearer {LINE_TOKEN}"})
+    urllib.request.urlopen(req, timeout=10)
+
+
+def line_handle(user_key, text):
+    now = time.time()
+    hits = RECENT[user_key]
+    while hits and now - hits[0] > 3600:
+        hits.popleft()
+    if len(hits) >= MAX_PER_HOUR:
+        return "ข้อความเยอะเกินไป ลองใหม่ภายหลังนะคะ / Too many messages, please try later."
+    hits.append(now)
+    history = SESSIONS.setdefault(user_key, [])
+    history.append({"role": "user", "content": text[:MAX_TEXT]})
+    answer = reply(history)
+    SESSIONS[user_key] = trim(history)
+    return answer
+
+
+@app.post("/line/webhook")
+async def line_webhook(request: Request):
+    body = await request.body()
+    expected = base64.b64encode(hmac.new(LINE_SECRET.encode(), body, hashlib.sha256).digest()).decode()
+    if not LINE_SECRET or not hmac.compare_digest(request.headers.get("x-line-signature", ""), expected):
+        raise HTTPException(403, "Bad signature")
+    for event in json.loads(body).get("events", []):
+        if event.get("type") != "message" or event.get("message", {}).get("type") != "text":
+            continue
+        user_key = "line:" + event.get("source", {}).get("userId", "unknown")
+        answer = await run_in_threadpool(line_handle, user_key, event["message"]["text"])
+        await run_in_threadpool(line_send, event["replyToken"], answer)
+    return {"ok": True}
